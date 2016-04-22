@@ -1,0 +1,22 @@
+{
+    "name:": "dustingraham/react-mysql",
+    "description": "Nuclear MySQL Reactor",
+    "keywords": ["mysql", "react", "asynchronous"],
+    "license": "MIT",
+    "authors": [
+        {"name": "Dustin Graham", "email": "github@dustingraham.com"}
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "react/event-loop": "^0.4.2",
+        "react/promise": "^2.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "DustinGraham\\ReactMysql\\": "src/"
+        }
+    }
+}
