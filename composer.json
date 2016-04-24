@@ -1,6 +1,6 @@
 {
     "name": "dustingraham/react-mysql",
-    "description": "Nuclear MySQL Reactor",
+    "description": "Non-blocking MySQLi database access with PHP. Designed to work with reactphp/react.",
     "keywords": ["mysql", "react", "asynchronous"],
     "license": "MIT",
     "authors": [
