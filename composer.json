@@ -18,5 +18,10 @@
         "psr-4": {
             "DustinGraham\\ReactMysql\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DustinGraham\\ReactMysql\\Tests\\": "tests/"
+        }
     }
 }
