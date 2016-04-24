@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "103771ae7dbef08166273eef5894f3d3",
-    "content-hash": "143013fe71a9ae4245f1dc5e11a66551",
+    "hash": "7af9761bd599ce6a86a504d0f0a03c02",
+    "content-hash": "124fec4b730229eb708eb8ad713cc914",
     "packages": [
         {
             "name": "react/event-loop",

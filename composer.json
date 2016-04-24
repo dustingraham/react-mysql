@@ -1,5 +1,5 @@
 {
-    "name:": "dustingraham/react-mysql",
+    "name": "dustingraham/react-mysql",
     "description": "Nuclear MySQL Reactor",
     "keywords": ["mysql", "react", "asynchronous"],
     "license": "MIT",
