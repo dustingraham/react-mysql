@@ -28,16 +28,12 @@ class DatabaseTest extends TestCaseDatabase
         
         $this->assertEquals(0, $c->connect_errno);
         
-        $this->assertTrue(in_array($c->server_version, [
-            50505,
-            50547,
-        ]));
-        
         // Don't know if we care about these.
         // This is what the development environment was.
         // We can remove these as we understand them better.
         $this->assertEquals(10, $c->protocol_version);
-        $this->assertEquals(50011, $c->client_version);
+        $this->assertGreaterThan(50000, $c->client_version);
+        $this->assertGreaterThan(50000, $c->server_version);
         $this->assertEquals(0, $c->warning_count);
         $this->assertEquals('00000', $c->sqlstate);
     }
