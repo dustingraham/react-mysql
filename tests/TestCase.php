@@ -1,16 +1,10 @@
 <?php namespace DustinGraham\ReactMysql\Tests;
 
-use DustinGraham\ReactMysql\ConnectionFactory;
-
 class TestCase extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
         parent::setUp();
-        
-        ConnectionFactory::init(
-            \React\EventLoop\Factory::create()
-        );
     }
     
     public function assertStringEqualsIgnoreSpacing($expected, $actual, $message = '', $delta = 0.0, $maxDepth = 10, $canonicalize = false, $ignoreCase = false)

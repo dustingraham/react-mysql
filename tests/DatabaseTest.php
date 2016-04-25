@@ -1,23 +1,26 @@
 <?php namespace DustinGraham\ReactMysql\Tests;
 
-class DatabaseTest extends TestCase
+use DustinGraham\ReactMysql\Command;
+use DustinGraham\ReactMysql\ConnectionFactory;
+use DustinGraham\ReactMysql\Database;
+use React\Promise\PromiseInterface;
+
+class DatabaseTest extends TestCaseDatabase
 {
-    public $tableName = '`react`.`react`';
-    
     public function testCommandClass()
     {
-        $database = new \DustinGraham\ReactMysql\Database();
+        $database = new Database();
         
         $command = $database->createCommand();
         
-        $this->assertInstanceOf(\DustinGraham\ReactMysql\Command::class, $command);
+        $this->assertInstanceOf(Command::class, $command);
         
         $command->bindValues([]);
     }
     
     public function testMysqliConnection()
     {
-        $c = \mysqli_connect('localhost', 'react', 'react', 'react');
+        $c = $this->getMysqliConnection();
         
         $this->assertInstanceOf(\mysqli::class, $c);
         
@@ -25,76 +28,76 @@ class DatabaseTest extends TestCase
         
         $this->assertEquals(0, $c->connect_errno);
         
+        $this->assertTrue(in_array($c->server_version, [
+            50505,
+            50547,
+        ]));
+        
         // Don't know if we care about these.
         // This is what the development environment was.
         // We can remove these as we understand them better.
         $this->assertEquals(10, $c->protocol_version);
         $this->assertEquals(50011, $c->client_version);
-        $this->assertEquals(50505, $c->server_version);
         $this->assertEquals(0, $c->warning_count);
         $this->assertEquals('00000', $c->sqlstate);
-        
-        $c->close();
     }
     
     public function testMysqliSynchronous()
     {
-        $c = \mysqli_connect('localhost', 'react', 'react', 'react');
+        $c = $this->getMysqliConnection();
         
-        $result = $c->query('SELECT * FROM ' . $this->tableName);
-        $this->assertEquals(3, $result->num_rows);
+        $result = $c->query('SELECT * FROM simple_table;');
+        $this->assertEquals(2, $result->num_rows);
         
         $tempTableName = 'temptable123';
-        $c->query('CREATE TEMPORARY TABLE ' . $tempTableName . ' LIKE ' . $this->tableName);
+        $c->query('CREATE TEMPORARY TABLE ' . $tempTableName . ' LIKE simple_table;');
         $result = $c->query('SELECT * FROM ' . $tempTableName);
         $this->assertEquals(0, $result->num_rows);
         
-        $stmt = $c->prepare('INSERT INTO ' . $tempTableName . ' (`id`, `created_by`, `created_for`, `created_at`) VALUES (?, ?, ?, ?)');
-        
-        $stmt->bind_param('isid', $id, $created_by, $created_for, $created_at);
+        $stmt = $c->prepare('INSERT INTO ' . $tempTableName . ' (`id`, `name`) VALUES (?, ?)');
         
         $id = null;
-        $created_by = 'john';
-        $created_for = 3;
-        $created_at = 'NOW()';
+        $name = 'john';
+        
+        $stmt->bind_param('is', $id, $name);
         
         $stmt->execute();
         $this->assertEquals(1, $stmt->affected_rows, 'Did not insert the row.');
         $stmt->close();
-        
-        $c->close();
     }
     
     public function testMysqliAsynchronous()
     {
-        $c = \mysqli_connect('localhost', 'react', 'react', 'react');
+        $c = $this->getMysqliConnection();
         
-        $c->query('SELECT * FROM ' . $this->tableName, MYSQLI_ASYNC);
+        $c->query('SELECT * FROM simple_table;', MYSQLI_ASYNC);
         
         $result = $c->reap_async_query();
-        $this->assertEquals(3, $result->num_rows);
-        
-        $c->close();
+        $this->assertEquals(2, $result->num_rows);
     }
     
     public function testCreateCommandGetPromise()
     {
-        $db = new \DustinGraham\ReactMysql\Database();
+        $db = new Database();
         
         $cmd = $db->createCommand();
-        $cmd->sql = 'SELECT * FROM ' . $this->tableName . ' WHERE id = :id';
+        
+        $cmd->sql = 'SELECT * FROM simple_table WHERE id = :id';
         $cmd->bind(':id', 1);
         
         $promise = $cmd->execute();
-        $this->assertInstanceOf(\React\Promise\PromiseInterface::class, $promise);
+        $this->assertInstanceOf(PromiseInterface::class, $promise);
         
         ////
         
         $promise = $db->createCommand(
-            'SELECT * FROM ' . $this->tableName . ' WHERE id = :test',
-            [':test', 1]
+            'SELECT * FROM simple_table WHERE id = :test',
+            [
+                ':test',
+                1,
+            ]
         )->execute();
-        $this->assertInstanceOf(\React\Promise\PromiseInterface::class, $promise);
+        $this->assertInstanceOf(PromiseInterface::class, $promise);
     }
     
     public function testCommandResolvedResults()
@@ -102,10 +105,13 @@ class DatabaseTest extends TestCase
         $this->markTestSkipped('Still to do.');
         
         $didItWork = false;
-        $db = new \DustinGraham\ReactMysql\Database();
+        $db = new Database();
         $db->createCommand(
-            'SELECT * FROM ' . $this->tableName . ' WHERE id = :test',
-            [':test', 1]
+            'SELECT * FROM simple_table WHERE id = :test',
+            [
+                ':test',
+                1,
+            ]
         )->execute()->then(
             function ($results) use (&$didItWork)
             {
@@ -125,51 +131,45 @@ class DatabaseTest extends TestCase
     
     public function testSimpleCommandParameterBinding()
     {
-        $db = new \DustinGraham\ReactMysql\Database();
+        $db = new Database();
         
         $cmd = $db->createCommand();
-        $cmd->sql = 'SELECT * FROM ' . $this->tableName . ' WHERE id = :id';
+        $cmd->sql = 'SELECT * FROM simple_table WHERE id = :id';
         $cmd->bind(':id', 1);
         
-        $connection = \DustinGraham\ReactMysql\ConnectionFactory::createConnection();
+        $connection = ConnectionFactory::createConnection();
         $query = $cmd->getPreparedQuery($connection);
         
-        $this->assertEquals('SELECT * FROM ' . $this->tableName . ' WHERE id = 1', $query);
+        $this->assertEquals('SELECT * FROM simple_table WHERE id = 1', $query);
     }
     
     public function testComplexCommandParameterBinding()
     {
-        $this->markTestSkipped('TODO: Implement complex binding.');
+        $this->markTestSkipped('TODO: Implement binding null values.');
         
-        $db = new \DustinGraham\ReactMysql\Database();
+        $db = new Database();
         
         $cmd = $db->createCommand();
         $cmd->sql = "
-          INSERT INTO {$this->tableName} (
+          INSERT INTO simple_table (
             `id`,
-            `created_by`,
-            `created_for`,
-            `created_at`
+            `name`
           ) VALUES (
             :id,
-            :created_by,
-            :created_for,
-            :created_at
+            :name
           );
         ";
         
         $cmd->bind([
             ':id' => null,
-            ':created_by' => 'neth',
-            ':created_for' => 3,
-            ':created_at' => 'NOW()',
+            ':name' => 'John Cash',
         ]);
         
-        $connection = \DustinGraham\ReactMysql\ConnectionFactory::createConnection();
+        $connection = ConnectionFactory::createConnection();
         $query = $cmd->getPreparedQuery($connection);
         
         $this->assertStringEqualsIgnoreSpacing(
-            "INSERT INTO `react`.`react` ( `id`, `created_by`, `created_for`, `created_at` ) VALUES ( NULL, 'test', '3', NOW() );",
+            "INSERT INTO simple_table ( `id`, `name` ) VALUES ( NULL, 'John Cash' );",
             $query
         );
     }

@@ -9,9 +9,15 @@ class ConnectionFactory
      */
     protected static $loop;
     
-    public static function init(LoopInterface $loop)
+    /**
+     * @var array
+     */
+    protected static $credentials;
+    
+    public static function init(LoopInterface $loop, $credentials)
     {
         self::$loop = $loop;
+        self::$credentials = $credentials;
     }
     
     public static function createConnection()
@@ -21,8 +27,12 @@ class ConnectionFactory
             throw new \Exception('Loop not provided.');
         }
         
-        //$mysqli = mysqli_connect('localhost', 'user', 'pass', 'dbname');
-        $mysqli = mysqli_connect('localhost', 'react', 'react', 'react');
+        $mysqli = new \mysqli(
+            self::$credentials[0],
+            self::$credentials[1],
+            self::$credentials[2],
+            self::$credentials[3]
+        );
         
         if ($mysqli === false)
         {

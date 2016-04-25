@@ -9,7 +9,10 @@ echo 'Starting loop...'.PHP_EOL;
 
 $loop = React\EventLoop\Factory::create();
 
-\DustinGraham\ReactMysql\ConnectionFactory::init($loop);
+\DustinGraham\ReactMysql\ConnectionFactory::init(
+    $loop,
+    ['localhost', 'apache', 'apache', 'react_mysql_test']
+);
 
 $db = new \DustinGraham\ReactMysql\Database();
 echo 'DB Created.'.PHP_EOL;
@@ -30,7 +33,7 @@ $loop->addPeriodicTimer(0.1, function ($timer) use (&$i, $db)
     echo "Run Query: $i\n";
     
     $db->createCommand(
-        'SELECT * FROM `react`.`react` WHERE id = :test',
+        'SELECT * FROM `simple_table` WHERE id = :test',
         [':test' => $i]
     )->execute()->then(
         function($result)

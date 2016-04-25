@@ -31,7 +31,10 @@ class Connection
     {
         if (is_array($data))
         {
-            $data = array_map([$this, 'escape'], $data);
+            $data = array_map([
+                $this,
+                'escape',
+            ], $data);
         }
         else
         {
@@ -79,13 +82,19 @@ class Connection
                         $deferred->resolve($result);
                     }
                 }
-                else if ($error)
+                else
                 {
-                    $deferred->reject(new \Exception($this->mysqli->error));
-                }
-                else if ($reject)
-                {
-                    $deferred->reject(new \Exception($this->mysqli->error));
+                    if ($error)
+                    {
+                        $deferred->reject(new \Exception($this->mysqli->error));
+                    }
+                    else
+                    {
+                        if ($reject)
+                        {
+                            $deferred->reject(new \Exception($this->mysqli->error));
+                        }
+                    }
                 }
                 
                 // If poll yielded something for this connection, we're done!

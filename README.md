@@ -54,7 +54,7 @@ Here is an example of what is currently working for the most part.
 
     $loop = React\EventLoop\Factory::create();
     
-    ConnectionFactory::init($loop);
+    ConnectionFactory::init($loop, ['db_host', 'db_user', 'db_pass', 'db_name']);
     
     $db = new \DustinGraham\ReactMysql\Database();  
     
@@ -75,7 +75,7 @@ Here is an example of what is currently working for the most part.
 Here are some examples of how it may be, eventually.
 It would be nice to hide away some of the current boilerplate.
 
-    Connection::init($loop);
+    Connection::init($loop, ['db_host', 'db_user', 'db_pass', 'db_name']);
     
     Connection::query(
       'SELECT * FROM `table` WHERE `column` = ? AND `column2` = ?;',

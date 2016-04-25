@@ -67,7 +67,7 @@ class ConnectionPool
     
     /**
      * Once a connection has finished being used...
-     * @param \mysqli $connection
+     * @param Connection $connection
      */
     public function releaseConnection(Connection $connection)
     {
