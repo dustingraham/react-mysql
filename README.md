@@ -111,6 +111,46 @@ The mysqli::real_escape_string requires a link. But, the link is one of many.
 Last minute escaping once the command and connection were married from the pool.
 Could potentially have one dedicated link for escaping.
 
+### Query Building Support
+
+Many MySQL wrapper packages have been analyzed, but none are completely independent of
+a connection object that could be found.
+
+For now, we will escape parameters, but require the user to provide a sql query that quotes the parameters.
+
+This is obviously sub-optimal since a variable like $created_at could be NOW() or '2016-01-01' or NULL. 
+
+The litmus test I have been using is the following query:
+
+    INSERT INTO `simple_table` (`id`, `name`, `value`, `created_at`)
+    VALUES (NULL, 'John\'s Name', 7, NOW());
+
+The key points here are:
+
+ - Support for putting the parameter in quotes! This is the first step. The rest is intelligently knowing when not to quote.
+ - Support for a null value converted to NULL.
+ - Support for escaping the parameter using either \\\' or '' is fine.
+ - Support for not escaping functions such as NOW()
+ - Support for recognizing integer values. Optional, since '7' will work fine.
+
+### Wrapper Options Reviewed
+
+ 1. [nilportugues/php-sql-query-builder](https://github.com/nilportugues/php-sql-query-builder) - No connection required! But, odd syntax.
+ 1. [usmanhalalit/pixie](https://github.com/usmanhalalit/pixie) - Requires connection. Pretty close to needs.
+ 1. [joshcam/PHP-MySQLi-Database-Class](https://github.com/joshcam/PHP-MySQLi-Database-Class) - Requires connection.
+ 1. [aviat4ion/Query](https://git.timshomepage.net/aviat4ion/Query) - Requires connection.
+ 1. [rkrx/php-mysql-query-builder](https://github.com/rkrx/php-mysql-query-builder) - Requires connection.
+ 1. [stefangabos/Zebra_Database](https://github.com/stefangabos/Zebra_Database) - Requires connection, does more than needed.
+ 1. [indeyets/MySQL-Query-Builder](https://github.com/indeyets/MySQL-Query-Builder) - Not maintained. Odd syntax.
+
+The nilportugues/php-sql-query-builder package is very close, but it does not quote the parameters.
+
+## Install
+
+The recommended way to install this library is through Composer.
+
+    $ composer require dustingraham/react-mysql
+
 ## Credits
 
 Much appreciation to the hard work over at [reactphp/react](https://github.com/reactphp/react).

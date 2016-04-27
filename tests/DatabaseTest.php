@@ -43,7 +43,7 @@ class DatabaseTest extends TestCaseDatabase
         $c = $this->getMysqliConnection();
         
         $result = $c->query('SELECT * FROM simple_table;');
-        $this->assertEquals(2, $result->num_rows);
+        $this->assertEquals(3, $result->num_rows);
         
         $tempTableName = 'temptable123';
         $c->query('CREATE TEMPORARY TABLE ' . $tempTableName . ' LIKE simple_table;');
@@ -69,7 +69,7 @@ class DatabaseTest extends TestCaseDatabase
         $c->query('SELECT * FROM simple_table;', MYSQLI_ASYNC);
         
         $result = $c->reap_async_query();
-        $this->assertEquals(2, $result->num_rows);
+        $this->assertEquals(3, $result->num_rows);
     }
     
     public function testCreateCommandGetPromise()
@@ -141,8 +141,6 @@ class DatabaseTest extends TestCaseDatabase
     
     public function testComplexCommandParameterBinding()
     {
-        $this->markTestSkipped('TODO: Implement binding null values.');
-        
         $db = new Database();
         
         $cmd = $db->createCommand();

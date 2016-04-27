@@ -63,10 +63,50 @@ class Command
      */
     public function getPreparedQuery(Connection $connection)
     {
-        $this->params = $connection->escape($this->params);
+        $quotedSql = $this->quoteIntoSql($connection); 
         
-        return strtr($this->sql, $this->params);
+        return $quotedSql;
     }
+    
+    /**
+     * TODO: This is exactly what I don't want to do. "Roll my own" SQL handler.
+     * However, the requirements for this package have led to this point for now.
+     * 
+     * @param Connection $connection
+     * @return mixed
+     */
+    protected function quoteIntoSql(Connection $connection)
+    {
+        $quotedSql = $this->sql;
+        $quotedParams = [];
+        
+        foreach($this->params as $key => $value)
+        {
+            if (is_null($value))
+            {
+                $quotedParams[$key] = 'NULL';
+            }
+            else if (is_integer($value))
+            {
+                $quotedParams[$key] = (int)$value;
+            }
+            else if (in_array($value, $this->reserved_words))
+            {
+                $quotedParams[$key] = $value;
+            }
+            else
+            {
+                $quotedParams[$key] = '\''.$connection->escape($value).'\'';
+            }
+        }
+        
+        return strtr($quotedSql, $quotedParams);
+    }
+    
+    // TODO: Find all of these...
+    protected $reserved_words = [
+        'NOW()'
+    ];
     
     /**
      * @return \React\Promise\PromiseInterface
