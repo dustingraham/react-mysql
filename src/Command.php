@@ -17,6 +17,13 @@ class Command
      */
     protected $params = [];
     
+    /**
+     * @var array
+     */
+    protected $reserved_words = [
+        'NOW()',
+    ];
+    
     public function __construct(Database $database, $sql = null)
     {
         $this->db = $database;
@@ -63,15 +70,17 @@ class Command
      */
     public function getPreparedQuery(Connection $connection)
     {
-        $quotedSql = $this->quoteIntoSql($connection); 
+        $quotedSql = $this->quoteIntoSql($connection);
         
         return $quotedSql;
     }
     
+    // TODO: Find all of these...
+    
     /**
      * TODO: This is exactly what I don't want to do. "Roll my own" SQL handler.
      * However, the requirements for this package have led to this point for now.
-     * 
+     *
      * @param Connection $connection
      * @return mixed
      */
@@ -80,7 +89,7 @@ class Command
         $quotedSql = $this->sql;
         $quotedParams = [];
         
-        foreach($this->params as $key => $value)
+        foreach ($this->params as $key => $value)
         {
             if (is_null($value))
             {
@@ -96,23 +105,20 @@ class Command
             }
             else
             {
-                $quotedParams[$key] = '\''.$connection->escape($value).'\'';
+                $quotedParams[$key] = '\'' . $connection->escape($value) . '\'';
             }
         }
         
         return strtr($quotedSql, $quotedParams);
     }
     
-    // TODO: Find all of these...
-    protected $reserved_words = [
-        'NOW()'
-    ];
-    
     /**
-     * @return \React\Promise\PromiseInterface
+     * @return \React\Promise\Promise
      */
     public function execute()
     {
-        return $this->db->executeCommand($this);
+        $thing = $this->db->executeCommand($this);
+        
+        return $thing;
     }
 }

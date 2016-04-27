@@ -7,19 +7,24 @@ use React\Promise\Deferred;
 class Connection
 {
     /**
+     * @var LoopInterface
+     */
+    public $loop;
+    
+    /**
      * @var \mysqli
      */
     protected $mysqli;
     
     /**
-     * @var LoopInterface
-     */
-    protected $loop;
-    
-    /**
      * @var float
      */
     protected $pollInterval = 0.01;
+    
+    /**
+     * @var bool|string
+     */
+    protected $currentQuery = false;
     
     public function __construct(\mysqli $mysqli, LoopInterface $loop)
     {
@@ -27,28 +32,35 @@ class Connection
         $this->loop = $loop;
     }
     
-    public function escape($data)
+    /**
+     * Proxy to the mysqli connection object.
+     *
+     * @param $string
+     * @return string
+     */
+    public function escape($string)
     {
-        if (is_array($data))
-        {
-            $data = array_map([
-                $this,
-                'escape',
-            ], $data);
-        }
-        else
-        {
-            $data = $this->mysqli->real_escape_string($data);
-        }
-        
-        return $data;
+        return $this->mysqli->real_escape_string($string);
+    }
+    
+    /**
+     * Close the mysqli connection.
+     */
+    public function close()
+    {
+        $this->mysqli->close();
     }
     
     public function execute(Command $command)
     {
-        $query = $command->getPreparedQuery($this);
+        if ($this->currentQuery)
+        {
+            throw new \Exception('Another query is already pending for this connection.');
+        }
         
-        $status = $this->mysqli->query($query, MYSQLI_ASYNC);
+        $this->currentQuery = $command->getPreparedQuery($this);
+        
+        $status = $this->mysqli->query($this->currentQuery, MYSQLI_ASYNC);
         if ($status === false)
         {
             throw new \Exception($this->mysqli->error);
@@ -74,7 +86,7 @@ class Connection
                     $result = $this->mysqli->reap_async_query();
                     if ($result === false)
                     {
-                        $deferred->reject(new \Exception($this->mysqli->error));
+                        $deferred->reject($this->mysqli->error);
                     }
                     else
                     {
@@ -86,13 +98,13 @@ class Connection
                 {
                     if ($error)
                     {
-                        $deferred->reject(new \Exception($this->mysqli->error));
+                        $deferred->reject($this->mysqli->error);
                     }
                     else
                     {
                         if ($reject)
                         {
-                            $deferred->reject(new \Exception($this->mysqli->error));
+                            $deferred->reject($this->mysqli->error);
                         }
                     }
                 }
@@ -100,6 +112,7 @@ class Connection
                 // If poll yielded something for this connection, we're done!
                 if ($read || $error || $reject)
                 {
+                    $this->currentQuery = false;
                     $timer->cancel();
                 }
             }

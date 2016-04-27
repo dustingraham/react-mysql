@@ -5,20 +5,14 @@ use React\EventLoop\Factory;
 
 class TestCaseDatabase extends TestCase
 {
-    protected $backupStaticAttributesBlacklist = [
-        'TestCaseDatabase' => ['mysqli'],
-    ];
-    
     /**
      * @var \PDO
      */
     protected static $pdo;
-    
     /**
      * @var \mysqli
      */
     protected static $mysqli;
-    
     /**
      * @var bool
      */
@@ -34,6 +28,21 @@ class TestCaseDatabase extends TestCase
         );
         
         $this->initDatabase();
+    }
+    
+    protected function getCredentials()
+    {
+        $host = getenv('DB_HOST') !== false ? getenv('DB_HOST') : 'localhost';
+        $user = getenv('DB_USER') !== false ? getenv('DB_USER') : 'apache';
+        $pass = getenv('DB_PASS') !== false ? getenv('DB_PASS') : 'apache';
+        $name = getenv('DB_NAME') !== false ? getenv('DB_NAME') : 'react_mysql_test';
+        
+        return [
+            $host,
+            $user,
+            $pass,
+            $name,
+        ];
     }
     
     protected function initDatabase()
@@ -75,20 +84,5 @@ class TestCaseDatabase extends TestCase
         }
         
         return self::$mysqli;
-    }
-    
-    protected function getCredentials()
-    {
-        $host = getenv('DB_HOST') !== false ? getenv('DB_HOST') : 'localhost';
-        $user = getenv('DB_USER') !== false ? getenv('DB_USER') : 'apache';
-        $pass = getenv('DB_PASS') !== false ? getenv('DB_PASS') : 'apache';
-        $name = getenv('DB_NAME') !== false ? getenv('DB_NAME') : 'react_mysql_test';
-        
-        return [
-            $host,
-            $user,
-            $pass,
-            $name,
-        ];
     }
 }

@@ -4,6 +4,9 @@ use React\Promise\Deferred;
 
 class Database
 {
+    /**
+     * @var ConnectionPool
+     */
     protected $pool;
     
     public function __construct()
@@ -25,7 +28,7 @@ class Database
     
     /**
      * @param Command $command
-     * @return \React\Promise\PromiseInterface
+     * @return \React\Promise\Promise
      */
     public function executeCommand(Command $command)
     {
@@ -44,6 +47,11 @@ class Database
                         // Doesn't hurt to close it again.
                         $result->close();
                     })
+                    ->otherwise(function ($reason) use ($deferred)
+                    {
+                        // If the connection execution fails, pass the failure back to the command.
+                        $deferred->reject($reason);
+                    })
                     ->always(function () use ($connection)
                     {
                         // Ensure we always return the connection to the pool.
@@ -52,5 +60,13 @@ class Database
             });
         
         return $deferred->promise();
+    }
+    
+    /**
+     * @return ConnectionPool
+     */
+    public function getPool()
+    {
+        return $this->pool;
     }
 }

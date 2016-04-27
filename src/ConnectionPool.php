@@ -36,7 +36,7 @@ class ConnectionPool
     /**
      * We use a promise in case all connections are busy.
      *
-     * @return \React\Promise\PromiseInterface
+     * @return \React\Promise\Promise
      */
     public function getConnection()
     {

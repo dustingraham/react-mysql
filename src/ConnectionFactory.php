@@ -7,7 +7,7 @@ class ConnectionFactory
     /**
      * @var LoopInterface
      */
-    protected static $loop;
+    public static $loop;
     
     /**
      * @var array
