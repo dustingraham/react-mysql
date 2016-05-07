@@ -36,10 +36,12 @@ class Connection extends \mysqli
      */
     public function escape($string)
     {
-        return $this->mysqli->real_escape_string($string);
+        return $this->real_escape_string($string);
     }
     
     /**
+     * @deprecated 
+     * 
      * Close the mysqli connection.
      */
     public function close()

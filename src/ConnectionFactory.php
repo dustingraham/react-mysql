@@ -5,23 +5,22 @@ use React\EventLoop\LoopInterface;
 class ConnectionFactory
 {
     /**
-     * @var LoopInterface
-     */
-    //public static $loop;
-    
-    /**
      * @var array
      */
     protected static $credentials;
     
-    public static function init(LoopInterface $loop, $credentials)
+    public static function init($credentials)
     {
-        //self::$loop = $loop;
         self::$credentials = $credentials;
     }
     
     public static function createConnection()
     {
+        if (is_null(self::$credentials))
+        {
+            throw new \Exception('Database credentials not set.');
+        }
+        
         $connection = new Connection(
             self::$credentials[0],
             self::$credentials[1],

@@ -22,9 +22,13 @@ class Database
      */
     protected $pollInterval = 0.01;
     
-    
-    public function __construct()
+    public function __construct($credentials = null)
     {
+        if (!is_null($credentials))
+        {
+            ConnectionFactory::init($credentials);
+        }
+        
         $this->loop = Factory::create();
         $this->initLoop();
         
@@ -90,12 +94,16 @@ class Database
         return $this->pool;
     }
     
-    public function statement($sql)
+    public function statement($sql, $params = null)
     {
+        $command = new Command($sql, $params);
+        
         $deferred = new Deferred();
         
-        $this->pool->withConnection(function($connection) use ($sql, $deferred)
+        $this->pool->withConnection(function(Connection $connection) use ($command, $deferred)
         {
+            $sql = $command->getPreparedQuery($connection);
+            
             $connection->query($sql, MYSQLI_ASYNC);
             
             $this->conns[$connection->id] = [
@@ -126,6 +134,8 @@ class Database
             // If we are shutting down, and have nothing to check, kill the timer.
             if ($this->shuttingDown)
             {
+                // TODO: Possible race condition if shutdown also queues queries, such as a final save.
+                // This could be prematurely cancelled.
                 $timer->cancel();
             }
             
@@ -151,7 +161,11 @@ class Database
             if ($result !== false)
             {
                 $deferred->resolve($result);
-                $result->free();
+                
+                // If userland code has already freed the result, this will throw a warning.
+                // No need to throw a warning here...
+                // If you know how to check if the result has already been freed, please PR!
+                @$result->free();
             }
             else
             {

@@ -3,38 +3,59 @@
 Non-blocking MySQLi database access with PHP.
 Designed to work with [reactphp/react](https://github.com/reactphp/react).
 
+[![Build Status](https://travis-ci.org/dustingraham/react-mysql.svg?branch=master)](https://travis-ci.org/dustingraham/react-mysql)
+
+## Quickstart
+
+    $db = new \DustinGraham\ReactMysql\Database(
+        ['localhost', 'apache', 'apache', 'react_mysql_test']
+    );
+    
+    $db->statement('SELECT * FROM simple_table WHERE id = :test', [':test' => 2])
+        ->then(function(\mysqli_result $result)
+        {
+            $rows = $result->fetch_all(MYSQLI_ASSOC);
+        });
+    
+    $db->shuttingDown = true;
+    $db->loop->run();
+
+Setting `shuttingDown` to true will allow the loop to exit once the query has resolved.
 
 ## Working
 
-This __is__ working. But it is nowhere near complete. 
+This __is__ working. But it is nowhere near complete. Check out the example file
+as well as the unit tests for more examples.
 
-    $ ./run
-    Starting loop...
-    DB Created.
+    $ ./example 
+    Creating database....done!
     Run Query: 0
     Found rows: 0
     Run Query: 1
     Found rows: 1
-    Current memory usage: 735.117K
+    Current memory usage: 868.164K
     Run Query: 2
-    Found rows: 0
+    Found rows: 1
     Run Query: 3
     Found rows: 1
     Run Query: 4
-    Found rows: 1
-    Current memory usage: 735.117K
+    Found rows: 0
+    Current memory usage: 868.164K
     Run Query: 5
     Found rows: 0
-    Current memory usage: 733.602K
-    Current memory usage: 733.602K
-    Current memory usage: 733.602K
+    Current memory usage: 865.719K
+    Current memory usage: 865.719K
+    Current memory usage: 865.719K
     Loop finished, all timers halted.
 
 This won't work out of the box without the database configured.
-As of this point, database configuration is hard coded.
-Still need to pull out the configs. You will also need to
-set up a database with some data to query. Check back later
-for more!
+You will also need to set up a database with some data to query.
+
+## Unit Tests
+
+The example and unit tests expect a database called `react_mysql_test` which it
+will populate with the proper tables each time it runs. It also expects `localhost`
+and a user `apache` with password `apache`.
 
 ## TODO
 
@@ -52,23 +73,20 @@ These are just plans for now. It may change wildly as we develop.
 
 Here is an example of what is currently working for the most part.
 
-    $loop = React\EventLoop\Factory::create();
-    
-    ConnectionFactory::init($loop, ['db_host', 'db_user', 'db_pass', 'db_name']);
-    
-    $db = new \DustinGraham\ReactMysql\Database();  
-    
-    $db->createCommand("SELECT * FROM `table` WHERE id = :id;", [':id' => $id])
-      ->execute()->then(
-        function($result)
-        {
-            $rows = $result->fetch_all(MYSQLI_ASSOC);
-            $result->close();
-            
-            // Do something with $rows.
-        }
+    $db = new \DustinGraham\ReactMysql\Database(
+        ['localhost', 'apache', 'apache', 'react_mysql_test']
     );
     
+    $db->statement('SELECT * FROM simple_table WHERE id = :test', [':test' => 2])
+        ->then(function(\mysqli_result $result)
+        {
+            $rows = $result->fetch_all(MYSQLI_ASSOC);
+            
+            // Do something with $rows.
+        });
+    
+    $db->shuttingDown = true;
+    $db->loop->run();
 
 ### Original Big Picture Plans
 

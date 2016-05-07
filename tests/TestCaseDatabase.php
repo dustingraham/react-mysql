@@ -21,13 +21,12 @@ class TestCaseDatabase extends TestCase
     public function setUp()
     {
         parent::setUp();
+    
+        $this->initDatabase();
         
         ConnectionFactory::init(
-            Factory::create(),
             $this->getCredentials()
         );
-        
-        $this->initDatabase();
     }
     
     protected function getCredentials()

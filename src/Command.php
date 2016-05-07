@@ -24,10 +24,10 @@ class Command
         'NOW()',
     ];
     
-    public function __construct(Database $database, $sql = null)
+    public function __construct($sql = null, $params = null)
     {
-        $this->db = $database;
         $this->sql = $sql;
+        $this->bind($params);
     }
     
     /**
@@ -39,10 +39,12 @@ class Command
     {
         if (is_array($key))
         {
-            // TODO: Is this cludgy?
-            $this->bindValues($key);
+            foreach ($key as $k => $v)
+            {
+                $this->params[$k] = $v;
+            }
         }
-        else
+        else if (!is_null($key))
         {
             $this->params[$key] = $value;
         }
@@ -51,17 +53,14 @@ class Command
     }
     
     /**
+     * @deprecated 
+     * 
      * @param $params
      * @return $this
      */
     public function bindValues($params)
     {
-        foreach ($params as $k => $v)
-        {
-            $this->params[$k] = $v;
-        }
-        
-        return $this;
+        return $this->bind($params);
     }
     
     /**
@@ -113,6 +112,8 @@ class Command
     }
     
     /**
+     * @deprecated 
+     * 
      * @return \React\Promise\Promise
      */
     public function execute()

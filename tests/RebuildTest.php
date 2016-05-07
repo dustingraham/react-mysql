@@ -57,7 +57,7 @@ class RebuildTest extends TestCaseDatabase
         
         $errorCount = 0;
         
-        $sqls = [
+        $queries = [
             'SELECT * FROM simple_table WHERE id = 1',
             'SELECT foo FROM',
             'SELECT SLEEP(0.2);',
@@ -66,7 +66,7 @@ class RebuildTest extends TestCaseDatabase
             'SELECT foo FROM',
             'SELECT SLEEP(0.1);',
         ];
-        foreach($sqls as $sql)
+        foreach($queries as $sql)
         {
             $db->statement($sql)->then(function(\mysqli_result $result)
             {
@@ -82,6 +82,39 @@ class RebuildTest extends TestCaseDatabase
         $db->loop->run();
         
         $this->assertSame(3, $errorCount);
+    }
+    
+    public function testSimpleBind()
+    {
+        $db = $this->getDatabase();
+        
+        $db->statement('SELECT * FROM simple_table WHERE id = :test', [':test' => 2])
+            ->then(function(\mysqli_result $result)
+            {
+                $this->assertCount(1, $result->fetch_all(MYSQLI_ASSOC));
+            })
+            ->done();
+        
+        $db->shuttingDown = true;
+        $db->loop->run();
+    }
+    
+    public function testFreeResult()
+    {
+        $db = $this->getDatabase();
+        
+        $db->statement('SELECT * FROM simple_table WHERE id = :test', [':test' => 2])
+            ->then(function(\mysqli_result $result)
+            {
+                $this->assertCount(1, $result->fetch_all(MYSQLI_ASSOC));
+                
+                // Ensure warning is not thrown.
+                $result->free();
+            })
+            ->done();
+        
+        $db->shuttingDown = true;
+        $db->loop->run();
     }
     
     /**
