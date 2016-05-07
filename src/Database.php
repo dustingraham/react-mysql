@@ -133,14 +133,14 @@ class Database
             return;
         }
         
-        $reads = [];
+        $reads = $errors = $rejects = [];
         foreach($this->conns as $conn)
         {
             $reads[] = $conn['mysqli'];
         }
         
         // Returns immediately, the non-blocking magic!
-        if (mysqli_poll($reads, $errors = [], $rejects = [], 0) < 1) return;
+        if (mysqli_poll($reads, $errors, $rejects, 0) < 1) return;
         
         /** @var Connection $read */
         foreach($reads as $read)
