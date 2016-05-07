@@ -53,17 +53,6 @@ class Command
     }
     
     /**
-     * @deprecated 
-     * 
-     * @param $params
-     * @return $this
-     */
-    public function bindValues($params)
-    {
-        return $this->bind($params);
-    }
-    
-    /**
      * @param Connection $connection
      * @return string
      */
@@ -109,17 +98,5 @@ class Command
         }
         
         return strtr($quotedSql, $quotedParams);
-    }
-    
-    /**
-     * @deprecated 
-     * 
-     * @return \React\Promise\Promise
-     */
-    public function execute()
-    {
-        $thing = $this->db->executeCommand($this);
-        
-        return $thing;
     }
 }

@@ -41,6 +41,7 @@ class ConnectionPool
             $connection = $this->available->dequeue();
             
             $cb($connection);
+            
             return;
         }
         

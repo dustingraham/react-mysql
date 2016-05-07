@@ -20,8 +20,6 @@ class DatabaseTest extends TestCaseDatabase
         $command = $db->createCommand();
         
         $this->assertInstanceOf(Command::class, $command);
-        
-        $command->bindValues([]);
     }
     
     public function disabled_testMysqliConnection()
@@ -78,30 +76,6 @@ class DatabaseTest extends TestCaseDatabase
         $this->assertEquals(3, $result->num_rows);
     }
     
-    public function disabled_testCreateCommandGetPromise()
-    {
-        $db = new Database();
-        
-        $cmd = $db->createCommand();
-        
-        $cmd->sql = 'SELECT * FROM simple_table WHERE id = :id';
-        $cmd->bind(':id', 1);
-        
-        $promise = $cmd->execute();
-        $this->assertInstanceOf(Promise::class, $promise);
-        
-        ////
-        
-        $promise = $db->createCommand(
-            'SELECT * FROM simple_table WHERE id = :test',
-            [
-                ':test',
-                1,
-            ]
-        )->execute();
-        $this->assertInstanceOf(Promise::class, $promise);
-    }
-    
     // TODO: This test is still todo.
     public function disabled_testParamCounting()
     {
@@ -128,37 +102,6 @@ class DatabaseTest extends TestCaseDatabase
             $query,
             'SELECT * FROM simple_table WHERE id = :test'
         );
-        
-        $connection->close();
-    }
-    
-    public function disabled_testCommandResolvedResults()
-    {
-        $rowCount = false;
-        $failedReason = false;
-        
-        $db = new Database();
-        
-        $db->createCommand(
-            'SELECT * FROM simple_table WHERE id = :test',
-            [':test' => 1,]
-        )
-            ->execute()
-            ->then(function (\mysqli_result $results) use (&$rowCount)
-            {
-                $rows = $results->fetch_all(MYSQLI_ASSOC);
-                $rowCount = count($rows);
-            })
-            ->otherwise(function ($reason) use (&$failedReason)
-            {
-                $failedReason = $reason;
-            });
-        
-        ConnectionFactory::$loop->run();
-        
-        $this->assertFalse($failedReason);
-        
-        $this->assertEquals(1, $rowCount);
     }
     
     public function disabled_testAssertStrings()
@@ -212,25 +155,6 @@ class DatabaseTest extends TestCaseDatabase
             "INSERT INTO simple_table ( `id`, `name`, `value`, `created_at` ) VALUES ( NULL, 'John Cash', 7, NOW() );",
             $query
         );
-        
-        $connection->close();
-    }
-    
-    public function disabled_testBadQuery()
-    {
-        $db = new Database();
-        
-        $failedReason = null;
-        $db->createCommand('SELECT * FROM `nonexistant_table`;')
-            ->execute()
-            ->otherwise(function ($reason) use (&$failedReason)
-            {
-                $failedReason = $reason;
-            });
-        
-        ConnectionFactory::$loop->run();
-        
-        $this->assertNotNull($failedReason);
     }
     
     public function disabled_testPool()

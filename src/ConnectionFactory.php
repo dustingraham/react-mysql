@@ -1,7 +1,5 @@
 <?php namespace DustinGraham\ReactMysql;
 
-use React\EventLoop\LoopInterface;
-
 class ConnectionFactory
 {
     /**

@@ -44,7 +44,7 @@ class Database
     {
         $command = new Command($this, $sql);
         
-        return $command->bindValues($params);
+        return $command->bind($params);
     }
     
     /**
@@ -86,7 +86,7 @@ class Database
     
     /**
      * @deprecated Remove from tests.
-     * 
+     *
      * @return ConnectionPool
      */
     public function getPool()
@@ -100,7 +100,7 @@ class Database
         
         $deferred = new Deferred();
         
-        $this->pool->withConnection(function(Connection $connection) use ($command, $deferred)
+        $this->pool->withConnection(function (Connection $connection) use ($command, $deferred)
         {
             $sql = $command->getPreparedQuery($connection);
             
@@ -144,7 +144,7 @@ class Database
         }
         
         $reads = $errors = $rejects = [];
-        foreach($this->conns as $conn)
+        foreach ($this->conns as $conn)
         {
             $reads[] = $conn['mysqli'];
         }
@@ -153,7 +153,7 @@ class Database
         if (mysqli_poll($reads, $errors, $rejects, 0) < 1) return;
         
         /** @var Connection $read */
-        foreach($reads as $read)
+        foreach ($reads as $read)
         {
             /** @var Deferred $deferred */
             $deferred = $this->conns[$read->id]['deferred'];
@@ -181,7 +181,7 @@ class Database
         // Check error pile.
         // Current understanding is that this would only happen if the connection
         // was closed, or not opened correctly.
-        foreach($errors as $error)
+        foreach ($errors as $error)
         {
             $this->pool->releaseConnection($error);
             unset($this->conns[$error->id]);
@@ -192,7 +192,7 @@ class Database
         // Check rejection pile.
         // Current understanding is that this would only happen if we passed a
         // connection that was already reaped. But... maybe not.
-        foreach($rejects as $reject)
+        foreach ($rejects as $reject)
         {
             $this->pool->releaseConnection($reject);
             unset($this->conns[$reject->id]);

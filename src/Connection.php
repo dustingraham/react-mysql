@@ -1,6 +1,5 @@
 <?php namespace DustinGraham\ReactMysql;
 
-use React\EventLoop\LoopInterface;
 use React\EventLoop\Timer\TimerInterface;
 use React\Promise\Deferred;
 
@@ -37,16 +36,6 @@ class Connection extends \mysqli
     public function escape($string)
     {
         return $this->real_escape_string($string);
-    }
-    
-    /**
-     * @deprecated 
-     * 
-     * Close the mysqli connection.
-     */
-    public function close()
-    {
-        $this->mysqli->close();
     }
     
     public function execute(Command $command)

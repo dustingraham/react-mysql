@@ -7,6 +7,7 @@ use DustinGraham\ReactMysql\Database;
 use React\EventLoop\Factory;
 use React\Promise\Deferred;
 use React\Promise\Promise;
+use React\Promise\UnhandledRejectionException;
 
 class RebuildTest extends TestCaseDatabase
 {
@@ -112,6 +113,45 @@ class RebuildTest extends TestCaseDatabase
                 $result->free();
             })
             ->done();
+        
+        $db->shuttingDown = true;
+        $db->loop->run();
+    }
+    
+    public function testBadQuery()
+    {
+        $db = $this->getDatabase();
+        
+        $errorTriggered = false;
+        $db->statement('SELECT foo FROM')
+            ->then(function(\mysqli_result $result)
+            {
+                $this->fail();
+            })
+            ->otherwise(function($error) use (&$errorTriggered)
+            {
+                $errorTriggered = !!$error;
+            })
+            ->done();
+        
+        $db->shuttingDown = true;
+        $db->loop->run();
+        
+        $this->assertTrue($errorTriggered, 'Error was sent to otherwise callback.');
+    }
+    
+    public function testUnhandledBadQuery()
+    {
+        $db = $this->getDatabase();
+        
+        $db->statement('SELECT foo FROM')
+            ->then(function(\mysqli_result $result)
+            {
+                $this->fail();
+            })
+            ->done();
+        
+        $this->setExpectedException(UnhandledRejectionException::class);
         
         $db->shuttingDown = true;
         $db->loop->run();
