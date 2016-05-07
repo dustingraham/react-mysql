@@ -7,7 +7,7 @@ class ConnectionFactory
     /**
      * @var LoopInterface
      */
-    public static $loop;
+    //public static $loop;
     
     /**
      * @var array
@@ -16,30 +16,23 @@ class ConnectionFactory
     
     public static function init(LoopInterface $loop, $credentials)
     {
-        self::$loop = $loop;
+        //self::$loop = $loop;
         self::$credentials = $credentials;
     }
     
     public static function createConnection()
     {
-        if (is_null(self::$loop))
-        {
-            throw new \Exception('Loop not provided.');
-        }
-        
-        $mysqli = new \mysqli(
+        $connection = new Connection(
             self::$credentials[0],
             self::$credentials[1],
             self::$credentials[2],
             self::$credentials[3]
         );
         
-        if ($mysqli === false)
+        if ($connection === false)
         {
             throw new \Exception(mysqli_connect_error());
         }
-        
-        $connection = new Connection($mysqli, self::$loop);
         
         return $connection;
     }

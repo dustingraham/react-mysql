@@ -4,32 +4,28 @@ use React\EventLoop\LoopInterface;
 use React\EventLoop\Timer\TimerInterface;
 use React\Promise\Deferred;
 
-class Connection
+class Connection extends \mysqli
 {
     /**
-     * @var LoopInterface
+     * @var int
      */
-    public $loop;
+    protected static $nextId = 0;
     
     /**
-     * @var \mysqli
+     * @var int
      */
-    protected $mysqli;
-    
-    /**
-     * @var float
-     */
-    protected $pollInterval = 0.01;
+    public $id;
     
     /**
      * @var bool|string
      */
     protected $currentQuery = false;
     
-    public function __construct(\mysqli $mysqli, LoopInterface $loop)
+    public function __construct($host = null, $username = null, $passwd = null, $dbname = null, $port = null, $socket = null)
     {
-        $this->mysqli = $mysqli;
-        $this->loop = $loop;
+        parent::__construct($host, $username, $passwd, $dbname, $port, $socket);
+        
+        $this->id = self::$nextId++;
     }
     
     /**

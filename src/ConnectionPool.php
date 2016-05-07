@@ -33,9 +33,35 @@ class ConnectionPool
         $this->waiting = new \SplQueue();
     }
     
+    public function withConnection($cb)
+    {
+        // First check idle connections.
+        if ($this->available->count() > 0)
+        {
+            $connection = $this->available->dequeue();
+            
+            $cb($connection);
+            return;
+        }
+        
+        // Check if we have max connections
+        if ($this->pool->count() >= $this->maxConnections)
+        {
+            $this->waiting->enqueue($cb);
+        }
+        
+        // Otherwise, create a new connection
+        $connection = ConnectionFactory::createConnection();
+        
+        $this->pool->attach($connection);
+        
+        $cb($connection);
+    }
+    
     /**
      * We use a promise in case all connections are busy.
      *
+     * @deprecated Use withConnection
      * @return \React\Promise\Promise
      */
     public function getConnection()

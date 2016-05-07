@@ -70,19 +70,33 @@ class TestCaseDatabase extends TestCase
         return self::$pdo;
     }
     
+    protected function getDatabase()
+    {
+        return new DatabaseMock();
+    }
+    
     /**
      * Note, do not close the connection. It is reused throughout the tests.
      *
      * @return \mysqli
      */
-    protected function getMysqliConnection()
-    {
-        if (is_null(self::$mysqli))
-        {
-            list($host, $user, $pass, $name) = $this->getCredentials();
-            self::$mysqli = new \mysqli($host, $user, $pass, $name);
-        }
-        
-        return self::$mysqli;
-    }
+//    protected function getMysqliConnection()
+//    {
+//        if (is_null(self::$mysqli))
+//        {
+//            self::$mysqli = $this->getNewMysqliConnection();
+//        }
+//        
+//        return self::$mysqli;
+//    }
+    
+//    protected $connCount = 1;
+//    protected function getNewMysqliConnection()
+//    {
+//        list($host, $user, $pass, $name) = $this->getCredentials();
+//        $mysqli = new Thing($host, $user, $pass, $name);
+//        $mysqli->countId = $this->connCount;
+//        $this->connCount++;
+//        return $mysqli;
+//    }
 }
