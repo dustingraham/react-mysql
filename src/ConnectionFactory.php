@@ -7,11 +7,18 @@ class ConnectionFactory
      */
     protected static $credentials;
     
+    /**
+     * @param array $credentials
+     */
     public static function init($credentials)
     {
         self::$credentials = $credentials;
     }
     
+    /**
+     * @return Connection
+     * @throws \Exception
+     */
     public static function createConnection()
     {
         if (is_null(self::$credentials))

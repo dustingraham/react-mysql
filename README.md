@@ -59,8 +59,6 @@ and a user `apache` with password `apache`.
 
 ## TODO
 
-A lot.
-
 This is not production ready. Still tons to do on the query builder.
 While I hate to reinvent the wheel, I have not found a lightweight
 injectable query builder that is not tied to a massive framework.

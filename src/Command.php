@@ -3,11 +3,6 @@
 class Command
 {
     /**
-     * @var Database the command is associated with.
-     */
-    public $db;
-    
-    /**
      * @var string
      */
     public $sql;
@@ -18,6 +13,8 @@ class Command
     protected $params = [];
     
     /**
+     * TODO: Find all of these
+     *
      * @var array
      */
     protected $reserved_words = [
@@ -58,12 +55,8 @@ class Command
      */
     public function getPreparedQuery(Connection $connection)
     {
-        $quotedSql = $this->quoteIntoSql($connection);
-        
-        return $quotedSql;
+        return $this->quoteIntoSql($connection);
     }
-    
-    // TODO: Find all of these...
     
     /**
      * TODO: This is exactly what I don't want to do. "Roll my own" SQL handler.
