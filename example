@@ -1,0 +1,50 @@
+#!/usr/bin/env php
+<?php
+error_reporting(-1);
+ini_set("display_errors", 1);
+
+require __DIR__.'/vendor/autoload.php';
+
+echo 'Creating database..';
+
+$db = new \DustinGraham\ReactMysql\Database(
+    ['localhost', 'apache', 'apache', 'react_mysql_test']
+);
+
+echo '..done!'.PHP_EOL;
+
+$j = 0;
+$db->loop->addPeriodicTimer(0.3, function (\React\EventLoop\Timer\TimerInterface $timer) use (&$j)
+{
+    $memory = memory_get_usage() / 1024;
+    $formatted = number_format($memory, 3).'K';
+    echo "Current memory usage: {$formatted}\n";
+    
+    if ($j++ > 3) $timer->cancel();
+});
+
+$i = 0;
+$db->loop->addPeriodicTimer(0.1, function (\React\EventLoop\Timer\TimerInterface $timer) use (&$i, $db)
+{
+    echo "Run Query: $i\n";
+    
+    $db->statement(
+        'SELECT * FROM `simple_table` WHERE id = :test',
+        [':test' => $i]
+    )->then(function(\mysqli_result $result)
+    {
+        $rows = $result->fetch_all(MYSQLI_ASSOC);
+        echo 'Found rows: '.count($rows).PHP_EOL;
+    })->done();
+    
+    if ($i++ >= 5)
+    {
+        // All queries added.
+        $db->shuttingDown = true;
+        $timer->cancel();
+    }
+});
+
+$db->loop->run();
+
+echo 'Loop finished, all timers halted.'.PHP_EOL;

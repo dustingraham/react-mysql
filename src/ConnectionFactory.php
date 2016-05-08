@@ -1,45 +1,42 @@
 <?php namespace DustinGraham\ReactMysql;
 
-use React\EventLoop\LoopInterface;
-
 class ConnectionFactory
 {
-    /**
-     * @var LoopInterface
-     */
-    public static $loop;
-    
     /**
      * @var array
      */
     protected static $credentials;
     
-    public static function init(LoopInterface $loop, $credentials)
+    /**
+     * @param array $credentials
+     */
+    public static function init($credentials)
     {
-        self::$loop = $loop;
         self::$credentials = $credentials;
     }
     
+    /**
+     * @return Connection
+     * @throws \Exception
+     */
     public static function createConnection()
     {
-        if (is_null(self::$loop))
+        if (is_null(self::$credentials))
         {
-            throw new \Exception('Loop not provided.');
+            throw new \Exception('Database credentials not set.');
         }
         
-        $mysqli = new \mysqli(
+        $connection = new Connection(
             self::$credentials[0],
             self::$credentials[1],
             self::$credentials[2],
             self::$credentials[3]
         );
         
-        if ($mysqli === false)
+        if ($connection === false)
         {
             throw new \Exception(mysqli_connect_error());
         }
-        
-        $connection = new Connection($mysqli, self::$loop);
         
         return $connection;
     }

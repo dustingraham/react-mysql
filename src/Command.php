@@ -3,11 +3,6 @@
 class Command
 {
     /**
-     * @var Database the command is associated with.
-     */
-    public $db;
-    
-    /**
      * @var string
      */
     public $sql;
@@ -18,16 +13,18 @@ class Command
     protected $params = [];
     
     /**
+     * TODO: Find all of these
+     *
      * @var array
      */
     protected $reserved_words = [
         'NOW()',
     ];
     
-    public function __construct(Database $database, $sql = null)
+    public function __construct($sql = null, $params = null)
     {
-        $this->db = $database;
         $this->sql = $sql;
+        $this->bind($params);
     }
     
     /**
@@ -39,26 +36,14 @@ class Command
     {
         if (is_array($key))
         {
-            // TODO: Is this cludgy?
-            $this->bindValues($key);
+            foreach ($key as $k => $v)
+            {
+                $this->params[$k] = $v;
+            }
         }
-        else
+        else if (!is_null($key))
         {
             $this->params[$key] = $value;
-        }
-        
-        return $this;
-    }
-    
-    /**
-     * @param $params
-     * @return $this
-     */
-    public function bindValues($params)
-    {
-        foreach ($params as $k => $v)
-        {
-            $this->params[$k] = $v;
         }
         
         return $this;
@@ -70,12 +55,8 @@ class Command
      */
     public function getPreparedQuery(Connection $connection)
     {
-        $quotedSql = $this->quoteIntoSql($connection);
-        
-        return $quotedSql;
+        return $this->quoteIntoSql($connection);
     }
-    
-    // TODO: Find all of these...
     
     /**
      * TODO: This is exactly what I don't want to do. "Roll my own" SQL handler.
@@ -110,15 +91,5 @@ class Command
         }
         
         return strtr($quotedSql, $quotedParams);
-    }
-    
-    /**
-     * @return \React\Promise\Promise
-     */
-    public function execute()
-    {
-        $thing = $this->db->executeCommand($this);
-        
-        return $thing;
     }
 }
