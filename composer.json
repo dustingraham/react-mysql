@@ -8,6 +8,7 @@
     ],
     "require": {
         "php": ">=5.4.0",
+        "ext-mysqli": "*",
         "react/event-loop": "^0.4.2",
         "react/promise": "^2.4"
     },

@@ -167,6 +167,8 @@ The recommended way to install this library is through Composer.
 
     $ composer require dustingraham/react-mysql
 
+PHP 5.4 and the php ext-mysqli extension is required.
+
 ## Credits
 
 Much appreciation to the hard work over at [reactphp/react](https://github.com/reactphp/react).
