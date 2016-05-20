@@ -22,14 +22,16 @@ class Database
      */
     protected $pollInterval = 0.01;
     
-    public function __construct($credentials = null)
+    public function __construct($credentials = null, $loop = null)
     {
         if (!is_null($credentials))
         {
             ConnectionFactory::init($credentials);
         }
         
-        $this->loop = Factory::create();
+        // Use the provided loop, otherwise create one.
+        $this->loop = $loop ?: Factory::create();
+        
         $this->initLoop();
         
         $this->pool = new ConnectionPool();

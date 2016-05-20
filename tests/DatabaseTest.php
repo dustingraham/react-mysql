@@ -2,6 +2,7 @@
 
 use DustinGraham\ReactMysql\Command;
 use DustinGraham\ReactMysql\Database;
+use React\EventLoop\Factory;
 
 class DatabaseTest extends TestCase
 {
@@ -28,5 +29,17 @@ class DatabaseTest extends TestCase
     public function testForCoverage()
     {
         new Database($this->getCredentials());
+    }
+    
+    public function testCustomLoop()
+    {
+        // Custom Loop
+        $loop = Factory::create();
+        $database = new Database($this->getCredentials(), $loop);
+        $this->assertSame($loop, $database->loop);
+        
+        // No Custom Loop
+        $databaseTwo = new Database($this->getCredentials());
+        $this->assertNotSame($loop, $databaseTwo->loop);
     }
 }
