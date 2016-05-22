@@ -105,10 +105,14 @@ class Database
             {
                 $deferred->resolve($result);
                 
-                // If userland code has already freed the result, this will throw a warning.
-                // No need to throw a warning here...
-                // If you know how to check if the result has already been freed, please PR!
-                @$result->free();
+                // $result is true for non-select queries.
+                if ($result instanceof \mysqli_result)
+                {
+                    // If userland code has already freed the result, this will throw a warning.
+                    // No need to throw a warning here...
+                    // If you know how to check if the result has already been freed, please PR!
+                    @$result->free();
+                }
             }
             else
             {

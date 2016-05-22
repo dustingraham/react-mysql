@@ -25,9 +25,6 @@ class RebuildTest extends TestCase
                 {
                     $rows = $result->fetch_all(MYSQLI_ASSOC);
                     $this->assertLessThanOrEqual(1, count($rows));
-                    
-                    //$rowCount = count($rows);
-                    //echo $rowCount;
                 })->done();
             }
             

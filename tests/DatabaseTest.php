@@ -42,4 +42,23 @@ class DatabaseTest extends TestCase
         $databaseTwo = new Database($this->getCredentials());
         $this->assertNotSame($loop, $databaseTwo->loop);
     }
+    
+    public function testUpdateStatement()
+    {
+        $database = new Database($this->getCredentials());
+        $database->statement(
+            "UPDATE simple_table SET name = :name WHERE id = :id",
+            [
+                ':name' => 'update test',
+                ':id' => 2
+            ]
+        )->then(function($result)
+        {
+            // Expect a true result.
+            $this->assertTrue($result);
+        })->done();
+        
+        $database->shuttingDown = true;
+        $database->loop->run();
+    }
 }
